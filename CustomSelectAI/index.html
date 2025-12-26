@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Searchable Custom Select</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="stype.css">
+</head>
+<body>
+  <div class="container">
+    <h4>Searchable Custom Select 🔎</h4>
+    <p class="muted">Click to open, type to filter, use arrow keys + Enter to select.</p>
+
+    <!-- Custom select element (single selection) -->
+    <div class="custom-select" id="country-select" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+      <div class="select-box" role="button">
+        <span class="select-label select-placeholder">Select a country...</span>
+        <div class="select-actions">
+          <button type="button" class="clear-btn" title="Clear selection" aria-label="Clear selection" style="display:none;">✕</button>
+          <span class="arrow">▾</span>
+        </div>
+      </div>
+
+      <div class="options-container" role="listbox" aria-label="country options">
+        <input type="search" class="search-input" placeholder="Search..." aria-label="Filter options">
+        <div class="option" data-value="us">United States</div>
+        <div class="option" data-value="ca">Canada</div>
+        <div class="option" data-value="mx">Mexico</div>
+        <div class="option" data-value="gb">United Kingdom</div>
+        <div class="option" data-value="de">Germany</div>
+        <div class="option" data-value="fr">France</div>
+        <div class="option" data-value="es">Spain</div>
+        <div class="option" data-value="it">Italy</div>
+        <div class="option" data-value="jp">Japan</div>
+        <div class="option" data-value="cn">China</div>
+        <div class="option" data-value="in">India</div>
+      </div>
+
+      <!-- hidden input to hold the selected value for forms -->
+      <input type="hidden" name="country" value="" />
+    </div>
+
+    <div style="margin-top:18px">
+      <label class="form-label">Selected value (for demo):</label>
+      <div id="selected-output" class="muted">(none)</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en" >
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+
+  <title>Update Notification</title>
+</head>
+
+<body class="mt-3 mb-3">
+
+
+    <div class="position-absolute d-flex justify-content-center h-100 w-100 d-none" style="z-index: 9999; background-color:aliceblue; opacity: 70%;" id="loading-image-div">
+      <div class="spinner-border justify-content-center align-self-center" role="status">
+        <span class="visually-hidden align-middle">Please wait...</span>
+      </div>
+      <strong class="justify-content-center align-self-center m-1"><span id="loadingMsg">Un gros message</span></br>Please  wait...</strong>
+    </div>
+    <div class="container-fluid">
+      
+      <nav class="navbar sticky-top navbar-light bg-light">
+        <div class="container-fluid justify-content-center">
+          <form class="d-flex">
+            <select class="form-select" aria-label="Notification">
+              <option selected>Choose a notification to update</option>
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+          </form>
+        </div>
+      </nav>
+
+      <form id="myForm" onsubmit="handleFormSubmit(this)">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="first-tab-button" data-bs-toggle="tab" data-bs-target="#first-tab" type="button" role="tab" aria-controls="first-tab" aria-selected="true">General Info</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="second-tab-button" data-bs-toggle="tab" data-bs-target="#second-tab" type="button" role="tab" aria-controls="second-tab" aria-selected="false">Related Occurrences</button>
+          </li>
+        </ul>
+
+        <div class="tab-content mt-2">
+          <div id="first-tab" class="tab-pane fade show active" role="tabpanel" aria-labelledby="first-tab-button" tabindex="0">
+            <!-- Text Field: Headline Field -->
+            <div class="form-floating mb-2 gx-1">
+              <input type="text" class="form-control" id="headline" name="Headline" placeholder="">
+              <label for="headline">Headline</label>
+            </div>
+
+            <!-- Text Field: Date of notification and Report Moderator Field -->
+            <div class="row mb-2 gx-1">
+              <div class="form-floating col">
+                <input class="form-control" list="reportingEntityOptions" id="reportingEntity" name="Reporting_Entity" placeholder="">
+                <datalist id="reportingEntityOptions"></datalist>
+                <label for="reportingEntity">Type Notifiant</label>
+              </div>
+              <div class="form-floating col">
+                <input type="text" class="form-control" id="reportingEntityText" name="Reporting_Entity_Text" placeholder="">
+                <label for="reportingEntityText">Notifiant</label>
+              </div>
+              <div class="form-floating col">
+                <select id="reportSource" name="Report_Source" class="form-select" placeholder=""></select>
+                <label for="reportSource">Source notification</label>
+              </div>
+            </div>
+
+            <!-- Text Field: Date and Time of occurrence Field -->
+            <div class="row mb-2 gx-1">
+              <div class="form-floating col">
+                <input type="date" class="form-control" id="occurrenceDate" name="occurrenceDate" placeholder="">
+                <label for="occurrenceDate">Date Occurrence</label>
+              </div>
+              <div class="form-floating col">
+                <input type="time" class="form-control" id="occurrenceTime" name="occurrenceTime" placeholder="">
+                <label for="occurrenceTime">Heure (UTC)</label>
+              </div>
+              <div class="form-floating col">
+                <input type="date" class="form-control" id="notificationDate" name="notificationDate" placeholder="">
+                <label for="notificationDate">Date Notification</label>
+              </div>
+            </div>
+
+            <div class="row mb-2 gx-1">
+              <div class="form-floating col">
+                <input class="form-control" list="occurrenceLocationOptions" id="occurrenceLocation" name="Location_Indicator" placeholder="">
+                <datalist id="occurrenceLocationOptions"></datalist>
+                <label for="occurrenceLocation">Lieu (Aérodrome)</label>
+              </div>
+              <div class="form-floating col">
+                <input type="text" class="form-control" id="occurrenceLocationText" name="Location_Indicator_Text" placeholder="">
+                <label for="occurrenceLocationText">Lieu (Texte)</label>
+              </div>
+            </div>
+
+            <!-- Text Field: Aircraft Registration and Type Field -->
+            <fieldset class="form-group border border-2 rounded px-1 mb-1">
+              <legend class="float-none w-auto px-2 mb-0 fw-bold" style="font-size: inherit;">Aéronef 1</legend>
+              <div class="row mb-2 gx-1">
+                <div class="form-floating col">
+                  <input class="form-control" list="aircraftOperatorCountryOptions1" id="aircraftOperatorCountry1" name="Operator_Country_1" placeholder="">
+                  <datalist id="aircraftOperatorCountryOptions1"></datalist>
+                  <label for="aircraftOperatorCountry1">Pays Exploitant 1</label>
+                </div>
+                <div class="form-floating col">
+                  <input class="form-control" list="aircraftOperatorOptions1" id="aircraftOperator1" name="Operator_1" placeholder="">
+                  <datalist id="aircraftOperatorOptions1"></datalist>
+                  <label for="aircraftOperator1">Exploitant 1</label>
+                </div>
+                <div class="form-floating col">
+                  <input type="text" class="form-control" id="aircraftOperatorText1" name="Operator_Text_1" placeholder="">
+                  <label for="aircraftOperatorText1">Exploitant (Texte) 1</label>
+                </div>
+              </div>
+              <div class="row mb-2 gx-1">
+                <div class="form-floating col">
+                  <input type="text" class="form-control" id="aircraftManufacturerModel1" name="Aircraft_Manufacturer_Model_1" placeholder="">
+                  <label for="aircraftManufacturerModel1">Type d'aéronef 1</label>
+                </div>
+                <div class="form-floating col">
+                  <input type="text" class="form-control" id="aircraftRegistration1" name="Aircraft_Registration_1" placeholder="">
+                  <label for="aircraftRegistration1">Immatriculation 1</label>
+                </div>
+              </div>
+            </fieldset>
+            
+            <!-- Text Field: Aircraft Registration and Type Field -->
+            <fieldset class="form-group border border-2 rounded px-1 mb-2">
+              <legend class="float-none w-auto px-2 mb-0 fw-bold " style="font-size: inherit;">Aéronef 2</legend>
+              <div class="row mb-2 gx-1">
+                <div class="form-floating col">
+                  <input class="form-control" list="aircraftOperatorCountryOptions1" id="aircraftOperatorCountry2" name="Operator_Country_2" placeholder="">
+                  <datalist id="aircraftOperatorCountryOptions2"></datalist>
+                  <label for="aircraftOperatorCountry2">Pays Exploitant 2</label>
+                </div>
+                <div class="form-floating col">
+                  <input class="form-control" list="aircraftOperatorOptions1" id="aircraftOperator2" name="Operator_2" placeholder="">
+                  <datalist id="aircraftOperatorOptions2"></datalist>
+                  <label for="aircraftOperator2">Exploitant 2</label>
+                </div>
+                <div class="form-floating col">
+                  <input type="text" class="form-control" id="aircraftOperatorText2" name="Operator_Text_2" placeholder="">
+                  <label for="aircraftOperatorText2">Exploitant (Texte) 2</label>
+                </div>
+              </div>
+              <div class="row mb-2 gx-1">
+                <div class="form-floating col">
+                  <input type="text" class="form-control" id="aircraftManufacturerModel2" name="Aircraft_Manufacturer_Model_2" placeholder="">
+                  <label for="aircraftManufacturerModel2">Type d'aéronef 2</label>
+                </div>
+                <div class="form-floating col">
+                  <input type="text" class="form-control" id="aircraftRegistration2" name="Aircraft_Registration_2" placeholder="">
+                  <label for="aircraftRegistration2">Immatriculation 2</label>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Text Field: Category and Severity Field -->
+            <div class="row mb-2 gx-1">
+              <div class="form-floating col">
+                <select id="occurrenceCategory" name="Occurrence_Category" class="form-select" placeholder=""></select>
+                <label for="occurrenceCategory">Catégorie</label>
+              </div>
+              <div class="form-floating col">
+                <select id="occurrenceClass" name="Occurrence_Class" class="form-select" placeholder=""></select>
+                <label for="occurrenceClass">Classe</label>
+              </div>
+            </div>
+
+            <!-- Text Area: Narrative Field -->
+            <div class="row mb-2 gx-1">
+              <label for="occurrenceNarrative" class="col form-label mb-0">Narratif</label>
+              <textarea class="form-control" id="occurrenceNarrative" name="Narrative_Text" rows="5" placeholder=""></textarea>
+            </div>
+          </div>
+
+          <div id="second-tab" class="tab-pane fade" role="tabpanel" aria-labelledby="second-tab-button" tabindex="0">
+            <!-- Occurrences Table -->
+            <div class="row mb-3 gx-1">
+              <div class="sm-6 form-floating col mb-2">
+                <input type="text" class="form-control" id="occurrenceId" name="Occurrence_Id" placeholder="">
+                <label for="occurrenceId">Related Occurrence</label>
+              </div>
+              <button id="button-update-occurrence" type="button" onclick="loadRelatedOccurrences()">Update List</button>
+              <table id="occurrence-table" class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Occ. #</th>
+                    <th scope="col">Headline</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Moderator</th>
+                    <th scope="col">Description</th>
+                  </tr>
+                </thead>
+                <tbody id="occurrence-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Submit Button -->
+            <div class="row mb-3 gx-1">
+              <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        </div>
+      </form>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <script>
+    
+    document.getElementById('formFile').addEventListener('change', handleFileUpload, false);
+
+    function handleFileUpload(evt) {
+      let fl_file = evt.target.files[0];
+      let reader = new FileReader(); // built in API
+      let display_file = ( e ) => { // set the contents of the inputs
+        parseNotification(e.target.result);
+      };
+
+      let on_reader_load = ( fl ) => {
+          return display_file; // a function
+          };
+
+      // Closure to capture the file information.
+      reader.onload = on_reader_load( fl_file );
+
+      // Read the file as text.
+      reader.readAsText(fl_file );
+      document.getElementById('uploadForm').reset();
+    }
+
+    function parseNotification(data) {
+      const json = JSON.parse(data);
+      let occurrence_date = json['occurrence.date.utc']
+      let occurrence_time = json['occurrence.time.utc']
+      let occurrence_narrative = json['occurrence.narrative']
+      let headline = json['occurrence.headline']
+      let location = json['location.indicator']
+      let category = json['occurrence.category']
+      let severity = json['occurrence.severity']
+      let reportingEntity = json['reporting.entity']
+
+      //.toISOString().slice(0, 10);
+      document.getElementById('occurrenceDate').value = occurrence_date.split('/').reverse().join('-');
+      document.getElementById('occurrenceTime').value = occurrence_time;
+      document.getElementById('occurrenceNarrative').value = occurrence_narrative;
+      document.getElementById('headline').value = headline
+      document.getElementById('occurrenceLocation').value = location
+      document.getElementById('occurrenceCategory').value = category
+      document.getElementById('occurrenceSeverity').value = severity
+      document.getElementById('reportModerator').value = reportingEntity
+
+      let done_keys = []
+      for (i in json['aircraft']) {
+        let elt = json['aircraft'][i]
+        
+        let key = 'aircraft.registration'
+        if ((key in elt) && !(key in done_keys)) {
+          document.getElementById('aircraftRegistration').value = elt[key]
+          done_keys.push(key)
+        }
+
+        key = 'aircraft.operator'
+        if ((key in elt) && !(key in done_keys)) {
+          document.getElementById('aircraftOperator').value = elt[key].join(' ')
+          done_keys.push(key)
+        }
+
+        key = 'aircraft.manufacturer_model'
+        if ((key in elt) && !(key in done_keys)) {
+          document.getElementById('aircraftType').value = elt[key].join(' ')
+          done_keys.push(key)
+        }
+      }
+
+    }
+  </script>
+
+</body>
+
+</html>
