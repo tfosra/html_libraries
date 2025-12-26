@@ -213,11 +213,11 @@ class CustomSelect {
     }
 
     isReadonly() {
-        return this.cselect.ariaReadOnly == true
+        return Boolean(this.cselect.ariaReadOnly)
     }
 
     isDisabled() {
-        return this.cselect.ariaDisabled == true
+        return Boolean(this.cselect.ariaDisabled)
     }
 
     setReadonly(readonly) {
