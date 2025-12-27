@@ -18,6 +18,31 @@ document.addEventListener('DOMContentLoaded', () => {
         populateActivity(activity, mode);
     })
 
+    cselect = CustomSelect.init(document.getElementById('activity_type_eval'))
+    cselect.addChangeListener((e) => {
+        const cselect = CustomSelect.init(e.target)
+        const type_eval_code = cselect.value();
+        
+        // Automatically loading Nature and Evaluateur from default Type_Evaluation data when changing Type_Evaluation
+        // Only when the Activity section of the form is not disabled
+        if (!cselect.isDisabled()) {
+            try {
+                // let type_eval_data = getData('type_evaluation').find(te => te.code === type_eval_code)
+                let type_eval_data = {
+                    'nature': 'Externe',
+                    'evaluateur': 'ANTIC'
+                }
+                if (type_eval_data) {
+                    let elt = document.getElementById('activity_nature')
+                    CustomSelect.init(elt).select(type_eval_data.nature)
+
+                    elt = document.getElementById('activity_evaluateur')
+                    CustomSelect.init(elt).select(type_eval_data.evaluateur)
+                }
+            } catch (e) {}
+        }
+    })
+
     document.getElementById('action-table').getElementsByTagName('tbody')[0].addEventListener('dblclick', function(e) {
             e.preventDefault()
             const row = e.target.closest('tr')
@@ -28,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 document.addEventListener('DOMContentLoaded', function() {
-    data = dummyCarrence()
+    data = dummyCarence()
     populateForm(data);
 });
 
@@ -238,13 +263,12 @@ function populateActivity(data, mode='view') {
     })
 }
 
-function populateCarrence(data) {
+function populateCarence(data) {
     let elt = document.getElementById('activity');
 
     activityList = dummyActivities().map(activity => [activity.code, `[${activity.code}] ${activity.description}`])
-    cselect = CustomSelect.init(elt, [['__NEW__', '-- NOUVELLE ACTIVITE --']].concat(activityList))
+    cselect = CustomSelect.init(elt, [['__NEW__', 'NOUVELLE ACTIVITE']].concat(activityList))
     cselect.select(data['activity_code'] || '__NEW__')
-    cselect.triggerChange()
     if (data['activity_code']) {
         elt.setAttribute('disabled', null)
     } else {
@@ -281,7 +305,7 @@ function populateForm(data) {
     if (!data) {
         data = {};
     }
-    populateCarrence(data)
+    populateCarence(data)
     populateActionTable(data['actions'] || [], mode='view');
 }
 
@@ -296,11 +320,11 @@ function handleFormSubmit(evt) {
         action = {};
         action['code'] = row.querySelector('[name="action_number"]').id || null;
         if (!row.getAttribute('deleted')) {
-            action['description'] = row.querySelector('[name="action_description"]').textContent || '';
-            action['echeance'] = row.querySelector('[name="action_echeance"]').getAttribute('value') || '';
-            action['responsable'] = row.querySelector('[name="action_responsable"]').getAttribute('value') || '';
-            action['sous_processus'] = row.querySelector('[name="action_sous_processus"]').getAttribute('value') || '';
-            action['statut'] = row.querySelector('[name="action_statut"]').getAttribute('value') || '';
+            action['description'] = row.querySelector('[name="action_description"]').value || '';
+            action['echeance'] = row.querySelector('[name="action_echeance"]').value || '';
+            action['responsable'] = CustomSelect.init(row.querySelector('[name="action_responsable"]')).value();
+            // action['sous_processus'] = row.querySelector('[name="action_sous_processus"]').getAttribute('value') || '';
+            action['statut'] = CustomSelect.init(row.querySelector('[name="action_statut"]')).value();
         } else {
             action['deleted'] = true;
         }
@@ -308,10 +332,10 @@ function handleFormSubmit(evt) {
     });
     data = Object.fromEntries(data.entries());
     data['actions'] = actions;
-    saveCarrence(data);
+    saveCarence(data);
 }
 
-function saveCarrence(data) {
+function saveCarence(data) {
     activityData = {};
     if (data['activity_code'] === '__NEW__') {
         activityData['type_evaluation'] = data['activity_type_eval'];
@@ -324,7 +348,7 @@ function saveCarrence(data) {
     }
     console.log(activityData);
     
-    carrenceData = {
+    CarenceData = {
         'code': data['carence_code'],
         'classification': data['carence_classification'],
         'description': data['carence_description'],
@@ -334,7 +358,7 @@ function saveCarrence(data) {
         'date': data['carence_date'],
         'statut': data['carence_statut']
     }
-    console.log(carrenceData);
+    console.log(CarenceData);
 
     actionsData = data['actions']
     console.log(actionsData);

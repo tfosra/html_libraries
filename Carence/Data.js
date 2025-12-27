@@ -123,7 +123,7 @@ function dummyActivityByCode(activity_code) {
     return activities.find(activity => activity['code'] === activity_code);;
 }
 
-function dummyCarrence() {
+function dummyCarence() {
     return {
         'code': '2025-DSA-01-001',
         'activity_code': '2025-DSA-02',

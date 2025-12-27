@@ -23,18 +23,20 @@ class CustomSelect {
     _init_custom_select(target) {
         const id = target.id
         const name = target.name
-        const disabled = target.ariaDisabled
-        const readonly = target.ariaReadOnly
-        const placeholder = target.ariaPlaceholder || "-- Sélectionner --"
+        const disabled = target.ariaDisabled && target.ariaDisabled.toLowerCase() === 'true'
+        const readonly = target.ariaReadOnly && target.ariaReadOnly.toLowerCase() === 'true'
+        const placeholder = target.ariaPlaceholder || "Sélectionner une option"
         const label_text = target.ariaLabel || ''
         const html_template = `<div>
             <div class="select-box">
                 <input type="text" class="selected-value" hidden/>
                 <div class="input-group selected-option">
+                    <button class="input-group-text ${label_text ? 'floating' : ''} clear" type="button"><i class="fa fa-close"></i></button>
                     ${label_text ? '<div class="form-floating">' : ''}
                         <input type="text" class="form-control" readonly/>
                     ${label_text ? '<label></label></div>' : ''}
-                    <button class="input-group-text" type="button"><i class="fa fa-chevron-down"></i></button>
+                    
+                    <button class="input-group-text dropdown" type="button"><i class="fa fa-chevron-down"></i></button>
                 </div>
                 <div class="options-list">
                     <div class="input-group search-box">
@@ -70,7 +72,12 @@ class CustomSelect {
             label.htmlFor = input.name
         }
 
-        this.find('.selected-option').addEventListener('click', () => this.toggle())
+        this.find('.selected-option input').addEventListener('click', () => this.toggle())
+        this.find('button.dropdown').addEventListener('click', () => this.toggle())
+        this.find('button.clear').addEventListener('click', (e) => {
+            e.preventDefault()
+            this.select(null)
+        }, false)
         this.find('.selected-option input').addEventListener('keydown', (e) => {
             if (e.key == 'Enter') {
                 this.open()
@@ -93,6 +100,10 @@ class CustomSelect {
         return this.cselect.querySelector(query)
     }
 
+    name() {
+        return this.find('.selected-value').name
+    }
+
     isOpen() {
         return this.cselect.classList.contains('open')
     }
@@ -105,12 +116,16 @@ class CustomSelect {
         // this.highlightSelected()
         this.highlightFirst()
         this.find('.search-box input').focus()
+        let chevron = this.find('.selected-option button.dropdown i')
+        chevron.classList = ['fa fa-chevron-up']
     }
 
     close() {
         this.cselect.classList.remove('open')
         this.find('.search-box input').blur()
         this.resetFilter()
+        let chevron = this.find('.selected-option button.dropdown i')
+        chevron.classList = ['fa fa-chevron-down']
     }
 
     toggle(forceClose=false) {
@@ -139,7 +154,7 @@ class CustomSelect {
 
     setData(datalist) {
         const options = this.find('.options')
-        options.innerHtml = ''
+        options.replaceChildren()
         datalist.forEach(([value, text]) => {
             const option = document.createElement('div');
             option.dataset.value = value
@@ -148,7 +163,6 @@ class CustomSelect {
             option.addEventListener('click', (evt) => {
                 value = evt.target.dataset.value
                 this.select(value)
-                this.triggerChange()
             })
             options.appendChild(option);
         })
@@ -160,22 +174,24 @@ class CustomSelect {
     }
 
     select(selectedValue) {
+        const oldValue = this.value()
         this.reset()
         for (const option of this.options()) {
             let value = option.dataset.value
             let text = option.textContent
-            if (value === selectedValue) {
-                option.classList.toggle('active')
-                if (!option.classList.contains('active')) {
-                    value = ''
-                    text = this.find('.selected-option input').getAttribute('placeholder')
-                }
+            if (value == selectedValue) {
+                option.classList.add('active')
                 this.find('.selected-option input').value = text
                 this.find('.selected-value').value = value
                 this.close()
             } else {
                 option.classList.remove('active')
             }
+        }
+        if (this.value() !== oldValue) {
+            // Manually trigger change event
+            let elt = this.find('.selected-value')
+            elt.dispatchEvent(new Event('change', { bubbles: true }))
         }
     }
 
@@ -213,16 +229,18 @@ class CustomSelect {
     }
 
     isReadonly() {
-        return Boolean(this.cselect.ariaReadOnly)
+        const aria = this.cselect.ariaReadOnly
+        return aria && aria.toLowerCase() === 'true'
     }
 
     isDisabled() {
-        return Boolean(this.cselect.ariaDisabled)
+        const aria = this.cselect.ariaDisabled
+        return aria && aria.toLowerCase() === 'true'
     }
 
     setReadonly(readonly) {
         this.cselect.ariaReadOnly = readonly
-        this.find('.selected-option input').classList.toggle('form-control-plaintext', readonly)
+        // this.find('.selected-option input').classList.toggle('form-control-plaintext', !readonly)
 
         if (readonly) {
             this.close()
@@ -243,11 +261,6 @@ class CustomSelect {
 
     addChangeListener(funct) {
         this.find('.selected-value').addEventListener('change', funct, false)
-    }
-
-    triggerChange() {
-        let elt = this.find('.selected-value')
-        elt.dispatchEvent(new Event('change'))
     }
 
 }
