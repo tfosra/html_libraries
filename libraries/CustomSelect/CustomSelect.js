@@ -198,6 +198,10 @@ class CustomSelect {
             let elt = this.find('.selected-value')
             elt.dispatchEvent(new Event('change', { bubbles: true }))
         }
+        // Display or hide the clear button
+        const has_value = Boolean(this.value())
+        this.find('button.clear').hidden = !has_value
+        this.cselect.classList.toggle('empty', !has_value)
     }
 
     value() {

@@ -29,7 +29,12 @@
     padding-left: 0.25rem;
 }
 
-.custom-select[aria-disabled="true"] .form-floating label {
+.custom-select.empty .form-floating label {
+    padding-left: 0.875rem;
+}
+
+.custom-select[aria-disabled="true"] .form-floating label,
+.custom-select[aria-readonly="true"] .form-floating label {
     padding-left: 0.875rem;
 }
 
@@ -38,6 +43,10 @@
     padding: 0.375rem 0.375rem;
     cursor: pointer;
     background-color: transparent;
+}
+
+.custom-select.empty .selected-option input {
+    padding-left: 0.875rem;
 }
 
 .custom-select .selected-option button {
