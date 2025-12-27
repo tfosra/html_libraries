@@ -186,6 +186,7 @@ class CustomSelect {
             if (value == selectedValue) {
                 option.classList.add('active')
                 this.find('.selected-option input').value = text
+                this.find('.selected-option input').title = text
                 this.find('.selected-value').value = value
                 this.close()
             } else {

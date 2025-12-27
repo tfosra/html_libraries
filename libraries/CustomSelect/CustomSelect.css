@@ -25,8 +25,12 @@
     font-size: 0.875rem;
 }
 
-.form-floating label {
+.custom-select .form-floating label {
     padding-left: 0.25rem;
+}
+
+.custom-select[aria-disabled="true"] .form-floating label {
+    padding-left: 0.875rem;
 }
 
 .custom-select .selected-option input {

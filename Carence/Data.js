@@ -1,14 +1,14 @@
 function dummyActionData() {
     return [
         {
-            'action_code': '2025-DSA-01-01-001',
+            'code': '2025-DSA-01-01-001',
             'description': 'Contact the maintenance team to schedule an inspection.',
             'echeance': '2024-07-15',
             'responsable': 'dupont',
             'sous_processus': 'sp1'
         },
         {
-            'action_code': '2025-DSA-01-01-002',
+            'code': '2025-DSA-01-01-002',
             'description': 'Review the incident report and identify root causes.',
             'echeance': '2024-07-20',
             'responsable': 'martin',
@@ -16,7 +16,7 @@ function dummyActionData() {
             'statut': 'EN_COURS'
         },
         {
-            'action_code': '2025-DSA-01-01-003',
+            'code': '2025-DSA-01-01-003',
             'description': 'Implement corrective actions based on findings.',
             'echeance': '2024-07-30',
             'responsable': 'martin',
@@ -135,4 +135,24 @@ function dummyCarence() {
         'statut': 'EN_COURS',
         'actions': dummyActionData()
     }
+}
+
+function getData(key) {
+    const functMap = {
+        'carence': dummyCarence,
+        'actions': dummyActionData,
+        'activities': dummyActivities,
+        'responsable': dummyResponsables,
+        'sous_processus': dummySousProcessus,
+        'classification': dummyClassification,
+        'evaluateur': dummyEvaluateur,
+        'lieu': dummyLieu,
+        'nature': dummyNature,
+        'statut': dummyStatut,
+        'type_evaluation': dummyTypeEvaluation
+    }
+    if (key in functMap) {
+        return functMap[key]()
+    }
+    return []
 }

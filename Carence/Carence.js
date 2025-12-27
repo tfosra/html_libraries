@@ -1,3 +1,33 @@
+const carence_fields = {
+    'carence_code' : {'required': true, 'key': 'code'},
+    'carence_classification': {'key': 'classification', 'dropdown': true},
+    'carence_description': {'key': 'description'},
+    'carence_cause': {'key': 'cause'},
+    'carence_responsable': {'key': 'responsable', 'dropdown': true},
+    'carence_delai_fermeture': {'key': 'echeance'},
+    'carence_date': {'key': 'date'},
+    'carence_statut': {'key': 'statut', 'dropdown': true},
+    'activity_code': {'key': 'activity_code', 'required': true}
+}
+
+const activity_fields = {
+    'activity_code': {'key': 'code', 'required': true},
+    'activity_type_eval': {'key': 'type_evaluation', 'dropdown': true},
+    'activity_evaluateur': {'key': 'evaluateur', 'dropdown': true},
+    'activity_lieu': {'key': 'lieu', 'dropdown': true},
+    'activity_nature': {'key': 'nature', 'dropdown': true},
+    'activity_date_debut': {'key': 'date_debut'},
+    'activity_date_fin': {'key': 'date_fin'},
+    'activity_description': {'key': 'description'}
+}
+
+const action_fields = {
+    'action_code': {'key': 'code', 'required': true},
+    'action_description': {'key': 'description'},
+    'action_responsable': {'key': 'responsable', 'dropdown': true},
+    'action_echeance': {'key': 'echeance'},
+    'action_statut': {'key': 'statut', 'dropdown': true}
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-action-link').addEventListener('click', addActionRow, false);
@@ -53,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 document.addEventListener('DOMContentLoaded', function() {
-    data = dummyCarence()
+    data = getData('carence')
     populateForm(data);
 });
 
@@ -63,6 +93,7 @@ function addActionRow(data, mode='edit') {
     const html_template = `
         <tr>
             <th scope="row" class="align-middle text-center">
+              <input type="hidden" name="action_code">
               <span name="action_number"></span>
             </th>
             <td class="text-wrap">
@@ -75,9 +106,6 @@ function addActionRow(data, mode='edit') {
             <td>
               <span class="form-control-text" style="font-size : 0.875rem;" hidden></span>
               <input type="date" class="form-control form-control-sm" name="action_echeance">
-            </td>
-            <td>
-              <select class="custom-select custom-select-sm" name="action_sous_processus"></select>
             </td>
             <td>
               <select class="custom-select custom-select-sm" name="action_statut"></select>
@@ -135,32 +163,34 @@ function addActionRow(data, mode='edit') {
 }
 
 function editActionRow(row, edit) {
-    if (edit && row.getAttribute('deleted')) {
+    const deleted = row.getAttribute('deleted')
+    if (edit && deleted) {
         return
     }
 
     row.setAttribute('mode', edit ? 'edit' : 'view');
-    row.querySelector('.edit-row-icon').classList.toggle('d-none', edit);
-    row.querySelector('.save-row-icon').classList.toggle('d-none', !edit);
+    row.querySelector('.edit-row-icon').classList.toggle('d-none', deleted || edit);
+    row.querySelector('.save-row-icon').classList.toggle('d-none', deleted || !edit);
 
-    const inputs_and_textareas = ['action_description', 'action_echeance']
-    const custom_inputs = ['action_responsable', 'action_sous_processus', 'action_statut']
-
-    for (const name of inputs_and_textareas) {
-        let elt = row.querySelector(`[name='${name}']`)
-        let text = elt.value
-        if (elt.type === 'date') {
-            text = elt.valueAsDate ? elt.valueAsDate.toLocaleDateString('fr') : '';
+    for (const elt of row.querySelectorAll('[name]')) {
+        const name = elt.name
+        if (elt.tagName === 'SPAN' || name === 'action_code') {
+            // Ignore the action_code and action_number elements
+            continue
         }
-        let span = elt.previousElementSibling
-        elt.hidden = !edit
-        span.textContent = text
-        span.hidden = edit
-    }
-
-    for (const name of custom_inputs) {
-        let elt = row.querySelector(`[name='${name}']`)
-        CSelect(elt).setReadonly(!edit)
+        
+        if (action_fields[name].dropdown) {
+            CSelect(elt).setReadonly(!edit)
+        } else {
+            let text = elt.value
+            if (elt.type === 'date') {
+                text = elt.valueAsDate ? elt.valueAsDate.toLocaleDateString('fr') : '';
+            }
+            let span = elt.previousElementSibling
+            elt.hidden = !edit
+            span.textContent = text
+            span.hidden = edit
+        }
     }
 }
 
@@ -175,10 +205,10 @@ function deleteActionRow(evt) {
     evt.preventDefault();
     const row = evt.target.closest('tr');
     editActionRow(row, false)
-    action_code = row.querySelector('[name="action_number"]').id;
+    action_code = row.querySelector('[name="action_code"]').value;
     if (action_code) {
         row.classList.add('text-decoration-line-through', 'text-danger');
-        row.setAttribute('deleted', 'deleted');
+        row.setAttribute('deleted', true);
         row.querySelector('.delete-row-icon').classList.add('d-none');
         row.querySelector('.edit-row-icon').classList.add('d-none');
         row.querySelector('.save-row-icon').classList.add('d-none');
@@ -201,25 +231,22 @@ function undeleteActionRow(evt) {
 }
 
 function populateActionRow(row, data, mode='edit') {
-    let elt = row.querySelector('[name="action_number"]')
-    elt.textContent = data['number'] || '';
-    elt.id = data['action_code'] || '';
-
-    elt = row.querySelector('[name="action_description"]')
-    elt.value = data['description'] || ''
-    
-    elt = row.querySelector('[name="action_echeance"]')
-    elt.value = data['echeance']
-
-    elt = row.querySelector('[name="action_responsable"]')
-    CSelect(elt, dummyResponsables()).select(data['responsable'])
-    
-    elt = row.querySelector('[name="action_sous_processus"]')
-    CSelect(elt, dummySousProcessus()).select(data['sous_processus'])
-    
-    elt = row.querySelector('[name="action_statut"]')
-    CSelect(elt, dummyStatut()).select(data['statut'])
-
+    for (const elt of row.querySelectorAll('[name]')) {
+        const name = elt.name
+        if (elt.tagName === 'SPAN') {
+            if (elt.getAttribute('name') === 'action_number') {
+                elt.textContent = data['number']
+                continue
+            }
+        }
+        const afield = action_fields[name]
+        if (afield.dropdown) {
+            CSelect(elt, getData(afield.key)).select(data[afield.key])
+        }
+        else {
+            elt.value = data[afield.key] || ''
+        }
+    }
     editActionRow(row, mode==='edit')
 }
 
@@ -236,69 +263,42 @@ function populateActivity(data, mode='view') {
     if (!data) {
         data = {}
     }
-    selects = [
-        ['activity_type_eval', dummyTypeEvaluation, 'type_evaluation'],
-        ['activity_evaluateur', dummyEvaluateur, 'evaluateur'],
-        ['activity_lieu', dummyLieu, 'lieu'],
-        ['activity_nature', dummyNature, 'nature']
-    ]
-    inputs = [
-        ['activity_date_debut', 'date_debut'],
-        ['activity_date_fin', 'date_fin'],
-        ['activity_description', 'description']
-    ]
-
-    selects.forEach(([eltId, dataFunc, dataKey]) => {
-        let elt = document.getElementById(eltId);
-        let cselect = CSelect(elt, dataFunc())
-        cselect.select(data[dataKey])
-        cselect.setDisabled(mode === 'view')
-    });
-
-    inputs.forEach(([eltId, dataKey]) => {
-        let elt = document.getElementById(eltId);
-        elt.value = data[dataKey] || '';
-        elt.toggleAttribute('readonly', mode === 'view')
-        elt.toggleAttribute('disabled', mode === 'view')
-    })
+    for (const field_name in activity_fields) {
+        const field = activity_fields[field_name]
+        let elt = document.querySelector(`[name='${field_name}']`)
+        if (field.dropdown) {
+            const cselect = CSelect(elt, getData(field.key))
+            cselect.select(data[field.key])
+            cselect.setDisabled(mode === 'view')
+        }
+        else {
+            elt.value = data[field.key] || '';
+            elt.toggleAttribute('readonly', mode === 'view')
+            elt.toggleAttribute('disabled', mode === 'view')
+        }
+    }
 }
 
 function populateCarence(data) {
-    let elt = document.getElementById('activity');
-
-    activityList = dummyActivities().map(activity => [activity.code, `[${activity.code}] ${activity.description}`])
-    cselect = CSelect(elt, [['__NEW__', 'NOUVELLE ACTIVITE']].concat(activityList))
-    cselect.select(data['activity_code'] || '__NEW__')
-    if (data['activity_code']) {
-        elt.setAttribute('disabled', null)
-    } else {
-        elt.removeAttribute('disabled')
+    const activity_code = data['activity_code']
+    let elt = document.querySelector(`[name='activity_code']`);
+    let activity_list = getData('activities').map(activity => [activity.code, `[${activity.code}] ${activity.description}`])
+    activity_list = [['__NEW__', 'NOUVELLE ACTIVITE']].concat(activity_list)
+    
+    let cselect = CSelect(elt, activity_list)
+    cselect.select(activity_code || '__NEW__')
+    cselect.setDisabled(Boolean(activity_code))
+    
+    for (const field_name in carence_fields) {
+        const field = carence_fields[field_name]
+        let elt = document.querySelector(`[name='${field_name}']`)
+        if (field.dropdown) {
+            CSelect(elt, getData(field.key)).select(data[field.key])
+        }
+        else {
+            elt.value = data[field.key] || ''
+        }
     }
-
-    const inputs = [
-        ['carence_code', 'code'],
-        ['carence_description', 'description'],
-        ['carence_cause', 'cause'],
-        ['carence_date', 'date'],
-        ['carence_delai_fermeture', 'delai_fermeture']
-    ]
-
-    const selects = [
-        ['carence_classification', dummyClassification, 'classification'],
-        ['carence_responsable', dummyResponsables, 'responsable'],
-        ['carence_statut', dummyStatut, 'statut']
-    ]
-
-    inputs.forEach(([eltId, dataKey]) => {
-        let elt = document.getElementById(eltId);
-        elt.value = data[dataKey] || '';
-    })
-
-    selects.forEach(([eltId, dataFunc, dataKey]) => {
-        let elt = document.getElementById(eltId);
-        let cselect = CSelect(elt, dataFunc())
-        cselect.select(data[dataKey])
-    })
 }
 
 function populateForm(data) {
@@ -307,58 +307,148 @@ function populateForm(data) {
     }
     populateCarence(data)
     populateActionTable(data['actions'] || [], mode='view');
+    
+    // Initiate form default values to the values currently loaded
+    initiateFormDefaultValues()
+}
+
+function initiateFormDefaultValues(emptyFields = false) {
+    let elements = document.getElementById('myForm').elements
+    for (const elt of elements) {
+        if (!elt.name) {
+            continue
+        }
+        initElementDefaultValue(elt, emptyFields)
+    }
+
+    actionTableRowElements().forEach(row => {
+        for (const elt of row.elements) {
+            initElementDefaultValue(elt)
+        }
+    })
+}
+
+function initElementDefaultValue(elt, empty_field=false) {
+    switch (elt.tagName) {
+        case 'INPUT':
+        case 'TEXTAREA':
+            switch (elt.type) {
+                case 'radio':
+                case 'checkbox':
+                    elt.defaultChecked = empty_field ? false : elt.checked
+                    break
+                default:
+                    elt.defaultValue = empty_field ? '' : elt.value
+            }
+            break
+        case 'SELECT':
+            elt.defaultSelected = empty_field ? '' : elt.options[elt.selectedIndex]
+            break
+    }
+}
+
+function actionTableRowElements() {
+    const row_list = []
+    const tbody = document.getElementById('action-table').getElementsByTagName('tbody')[0];
+    Array.from(tbody.children).forEach((row) => {
+        const elts = Array.from(row.querySelectorAll('[name]'))
+        const code_elt = elts.find(elt => elt.name === 'action_code')
+        row_list.push({
+            'new': !Boolean(code_elt.value),
+            'deleted': row.hasAttribute('deleted'),
+            'elements': elts
+        })
+    })
+    return row_list
 }
 
 function handleFormSubmit(evt) {
     evt.preventDefault();
     saveAllActionRows();
     
-    data = new FormData(evt.target);
-    actions = [];
-    const tbody = document.getElementById('action-table').getElementsByTagName('tbody')[0];
-    Array.from(tbody.children).forEach((row) => {
-        action = {};
-        action['code'] = row.querySelector('[name="action_number"]').id || null;
-        if (!row.getAttribute('deleted')) {
-            action['description'] = row.querySelector('[name="action_description"]').value || '';
-            action['echeance'] = row.querySelector('[name="action_echeance"]').value || '';
-            action['responsable'] = CSelect(row.querySelector('[name="action_responsable"]')).value();
-            // action['sous_processus'] = row.querySelector('[name="action_sous_processus"]').getAttribute('value') || '';
-            action['statut'] = CSelect(row.querySelector('[name="action_statut"]')).value();
-        } else {
-            action['deleted'] = true;
+    let data = new FormData(evt.target)
+    data = Object.fromEntries(data.entries())
+    data['activity_code'] = document.querySelector(`[name='activity_code']`).value || null
+    
+    const changedRows = actionTableRowElements().filter(hasActionRowChanged)
+    let actions = changedRows.map(row => {
+        let action = {}
+        row.elements.filter(elt => {
+            const field = action_fields[elt.name]
+            const fieldExist = Boolean(field)
+            const isRequired = fieldExist && field.required
+            const hasChanged = hasElementChanged(elt)
+            const hasValue = Boolean(elt.value)
+            return fieldExist && ((isRequired && hasValue) || (!row.deleted && hasChanged))
+        }).forEach(elt => {
+            const field = action_fields[elt.name]
+            action[field.key] = elt.value
+        })
+        if (row.deleted) {
+            action.deleted = true
         }
-        actions.push(action);
-    });
-    data = Object.fromEntries(data.entries());
-    data['actions'] = actions;
+        return action
+    })
+    data['actions'] = actions
     saveCarence(data);
 }
 
+function hasActionRowChanged(row) {
+    if (row.deleted || row.new) {
+        return true
+    }
+    return row.elements.some(hasElementChanged)
+}
+
+function hasElementChanged(elt) {
+    switch (elt.tagName) {
+        case 'INPUT':
+        case 'TEXTAREA':
+            switch (elt.type) {
+                case 'radio':
+                case 'checkbox':
+                    return elt.checked !== elt.defaultChecked
+                default:
+                    return elt.value !== elt.defaultValue
+            }
+        case 'SELECT':
+            return elt.options[elt.selectedIndex] !== elt.defaultSelected
+    }
+    return false
+}
+
+function identifyFormChanges() {
+    const changes = {}
+    let elements = document.getElementById('myForm').elements
+    for (const elt of elements) {
+        if (elt.name) {
+            changes[elt.name] = hasElementChanged(elt)
+        }
+    }
+    return changes
+}
+
 function saveCarence(data) {
-    activityData = {};
+    let changes = identifyFormChanges()
+
+    let activityData = {};
     if (data['activity_code'] === '__NEW__') {
-        activityData['type_evaluation'] = data['activity_type_eval'];
-        activityData['evaluateur'] = data['activity_evaluateur'];
-        activityData['lieu'] = data['activity_lieu'];
-        activityData['nature'] = data['activity_nature'];
-        activityData['date_debut'] = data['activity_date_debut'];
-        activityData['date_fin'] = data['activity_date_fin'];
-        activityData['description'] = data['activity_description'];
+        data['activity_code'] = null
+        for (const [name, field] of Object.entries(activity_fields)) {
+            activityData[field.key] = data[name]
+        }
     }
     console.log(activityData);
-    
-    CarenceData = {
-        'code': data['carence_code'],
-        'classification': data['carence_classification'],
-        'description': data['carence_description'],
-        'cause': data['carence_cause'],
-        'responsable': data['carence_responsable'],
-        'echeance': data['carence_delai_fermeture'],
-        'date': data['carence_date'],
-        'statut': data['carence_statut']
+
+    carenceData = {}
+    for (const [name, field] of Object.entries(carence_fields)) {
+        const hasValue = Boolean(data[name])
+        const hasChanged = changes[name]
+        if ((field.required && hasValue) || hasChanged) {
+            carenceData[field.key] = data[name]
+        }
     }
-    console.log(CarenceData);
+    console.log(carenceData);
 
     actionsData = data['actions']
     console.log(actionsData);
