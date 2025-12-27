@@ -2,9 +2,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-action-link').addEventListener('click', addActionRow, false);
     
-    let cselect = CustomSelect.init(document.getElementById('activity'))
+    let cselect = CSelect(document.getElementById('activity'))
     cselect.addChangeListener((e) => {
-        const cselect = CustomSelect.init(e.target)
+        const cselect = CSelect(e.target)
         const activityCode = cselect.value();
         activity = null
         mode = 'edit'
@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
         populateActivity(activity, mode);
     })
 
-    cselect = CustomSelect.init(document.getElementById('activity_type_eval'))
+    cselect = CSelect(document.getElementById('activity_type_eval'))
     cselect.addChangeListener((e) => {
-        const cselect = CustomSelect.init(e.target)
+        const cselect = CSelect(e.target)
         const type_eval_code = cselect.value();
         
         // Automatically loading Nature and Evaluateur from default Type_Evaluation data when changing Type_Evaluation
@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (type_eval_data) {
                     let elt = document.getElementById('activity_nature')
-                    CustomSelect.init(elt).select(type_eval_data.nature)
+                    CSelect(elt).select(type_eval_data.nature)
 
                     elt = document.getElementById('activity_evaluateur')
-                    CustomSelect.init(elt).select(type_eval_data.evaluateur)
+                    CSelect(elt).select(type_eval_data.evaluateur)
                 }
             } catch (e) {}
         }
@@ -160,7 +160,7 @@ function editActionRow(row, edit) {
 
     for (const name of custom_inputs) {
         let elt = row.querySelector(`[name='${name}']`)
-        CustomSelect.init(elt).setReadonly(!edit)
+        CSelect(elt).setReadonly(!edit)
     }
 }
 
@@ -212,13 +212,13 @@ function populateActionRow(row, data, mode='edit') {
     elt.value = data['echeance']
 
     elt = row.querySelector('[name="action_responsable"]')
-    CustomSelect.init(elt, dummyResponsables()).select(data['responsable'])
+    CSelect(elt, dummyResponsables()).select(data['responsable'])
     
     elt = row.querySelector('[name="action_sous_processus"]')
-    CustomSelect.init(elt, dummySousProcessus()).select(data['sous_processus'])
+    CSelect(elt, dummySousProcessus()).select(data['sous_processus'])
     
     elt = row.querySelector('[name="action_statut"]')
-    CustomSelect.init(elt, dummyStatut()).select(data['statut'])
+    CSelect(elt, dummyStatut()).select(data['statut'])
 
     editActionRow(row, mode==='edit')
 }
@@ -250,7 +250,7 @@ function populateActivity(data, mode='view') {
 
     selects.forEach(([eltId, dataFunc, dataKey]) => {
         let elt = document.getElementById(eltId);
-        let cselect = CustomSelect.init(elt, dataFunc())
+        let cselect = CSelect(elt, dataFunc())
         cselect.select(data[dataKey])
         cselect.setDisabled(mode === 'view')
     });
@@ -267,7 +267,7 @@ function populateCarence(data) {
     let elt = document.getElementById('activity');
 
     activityList = dummyActivities().map(activity => [activity.code, `[${activity.code}] ${activity.description}`])
-    cselect = CustomSelect.init(elt, [['__NEW__', 'NOUVELLE ACTIVITE']].concat(activityList))
+    cselect = CSelect(elt, [['__NEW__', 'NOUVELLE ACTIVITE']].concat(activityList))
     cselect.select(data['activity_code'] || '__NEW__')
     if (data['activity_code']) {
         elt.setAttribute('disabled', null)
@@ -296,7 +296,7 @@ function populateCarence(data) {
 
     selects.forEach(([eltId, dataFunc, dataKey]) => {
         let elt = document.getElementById(eltId);
-        let cselect = CustomSelect.init(elt, dataFunc())
+        let cselect = CSelect(elt, dataFunc())
         cselect.select(data[dataKey])
     })
 }
@@ -322,9 +322,9 @@ function handleFormSubmit(evt) {
         if (!row.getAttribute('deleted')) {
             action['description'] = row.querySelector('[name="action_description"]').value || '';
             action['echeance'] = row.querySelector('[name="action_echeance"]').value || '';
-            action['responsable'] = CustomSelect.init(row.querySelector('[name="action_responsable"]')).value();
+            action['responsable'] = CSelect(row.querySelector('[name="action_responsable"]')).value();
             // action['sous_processus'] = row.querySelector('[name="action_sous_processus"]').getAttribute('value') || '';
-            action['statut'] = CustomSelect.init(row.querySelector('[name="action_statut"]')).value();
+            action['statut'] = CSelect(row.querySelector('[name="action_statut"]')).value();
         } else {
             action['deleted'] = true;
         }

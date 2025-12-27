@@ -1,3 +1,7 @@
+function CSelect(target, datalist=null) {
+    return CustomSelect.init(target, datalist)
+}
+
 class CustomSelect {
 
     constructor(target) {
