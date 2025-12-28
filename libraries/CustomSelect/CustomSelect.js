@@ -120,6 +120,7 @@ class CustomSelect {
         // this.highlightSelected()
         this.highlightFirst()
         this.find('.search-box input').focus()
+        this.filterOptions('')
         let chevron = this.find('.selected-option button.dropdown i')
         chevron.classList = ['fa fa-chevron-up']
     }

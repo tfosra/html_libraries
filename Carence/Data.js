@@ -126,7 +126,7 @@ function dummyActivityByCode(activity_code) {
 function dummyCarence() {
     return {
         'code': '2025-DSA-01-001',
-        'activity_code': '2025-DSA-02',
+        // 'activity_code': '2025-DSA-02',
         'classification': 'NIV1',
         'responsable': 'dupont',
         'description': 'Non-conformité majeure identifiée lors du dernier audit qualité.',
