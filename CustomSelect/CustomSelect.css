@@ -21,32 +21,64 @@
     border-bottom-right-radius: 0;
 }
 
-.custom-select.custom-select-sm .selected-option input {
+.custom-select .span-group {
+    padding-left: 0.375rem;
+}
+
+.custom-select .span-group,
+.custom-select .display-span {
+    cursor: pointer;
+}
+
+.custom-select.custom-select-sm .selected-option .display-span {
     font-size: 0.875rem;
 }
 
-.custom-select .form-floating label {
-    padding-left: 0.25rem;
+.custom-select .label-floating {
+    font-size: 0.85rem;
+    /* padding-top: 0.25rem; */
+    padding-left: 1.625rem;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+    color: rgba(33, 37, 41, .65);
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    border: 1px solid transparent;
 }
 
-.custom-select.empty .form-floating label {
+.custom-select.empty .label-floating,
+.custom-select[aria-disabled="true"] .label-floating,
+.custom-select[aria-readonly="true"] .label-floating {
     padding-left: 0.875rem;
 }
 
-.custom-select[aria-disabled="true"] .form-floating label,
-.custom-select[aria-readonly="true"] .form-floating label {
-    padding-left: 0.875rem;
-}
-
-.custom-select .selected-option input {
+.custom-select .selected-option .display-span {
     border: none;
-    padding: 0.375rem 0.375rem;
-    cursor: pointer;
+    padding: 0rem 0rem 0.375rem 0.375rem;
     background-color: transparent;
 }
 
-.custom-select.empty .selected-option input {
+.custom-select.empty .selected-option .display-span {
     padding-left: 0.875rem;
+}
+
+.custom-select .span-group .tag {
+    border: solid;
+    border-color: #b8bbbf;
+    border-radius: 2rem;
+    padding: 0.125rem 0.375rem 0.125rem 0.375rem;
+    margin: 0.2rem 0.125rem 0.2rem 0.125rem;
+}
+
+.custom-select .span-group .remove-tag {
+    font-size: 0.8rem;
+    padding-left: 0.25rem;
+}
+
+.custom-select .span-group .remove-tag:hover {
+    color: red;
 }
 
 .custom-select .selected-option button {
@@ -66,12 +98,14 @@
 
 .custom-select .selected-option button.dropdown {
     padding: 0.5rem;
+    min-width: 2rem;
+    min-height: 2rem;
 }
 
 .custom-select .selected-option button.clear:hover{
     font-size: 0.8rem;
     font-weight: bold;
-    color: lightcoral;
+    color: red;
 }
 
 .custom-select .selected-option button.dropdown:hover{
@@ -89,10 +123,15 @@
 }
 
 
-.custom-select[aria-disabled="true"] .selected-option input,
-.custom-select[aria-readonly="true"] .selected-option input {
+.custom-select[aria-disabled="true"] .selected-option .display-span,
+.custom-select[aria-readonly="true"] .selected-option .display-span {
     cursor: default !important;
     padding-left: 0.875rem;
+}
+
+.custom-select[aria-readonly="true"] .span-group .remove-tag,
+.custom-select[aria-disabled="true"] .span-group .remove-tag {
+    display: none;
 }
 
 .custom-select[aria-disabled="true"] .selected-option button {
@@ -106,6 +145,13 @@
 
 .custom-select[aria-disabled="true"] .selected-option button.clear {
     display: none;
+}
+
+.custom-select[aria-readonly="true"] .span-group,
+.custom-select[aria-disabled="true"] .span-group,
+.custom-select[aria-readonly="true"] .span-group .tag,
+.custom-select[aria-disabled="true"] .span-group .tag {
+    cursor: default;
 }
 
 .custom-select .selected-option input:focus {

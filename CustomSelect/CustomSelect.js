@@ -2,6 +2,23 @@ function CSelect(target, datalist=null) {
     return CustomSelect.init(target, datalist)
 }
 
+function equal(a, b) {
+    if (!a || !b || typeof a !== typeof b || a.length !== b.length) {
+        return false
+    }
+    if (Array.isArray(a)) {
+        return a.all(elt => b.includes(a))
+    }
+    return a === b
+}
+
+function split_trim(value, separator=',') {
+    if (Array.isArray(value)) {
+        return value
+    }
+    return value ? value.split(separator).map(t => t.trim()) : []
+}
+
 class CustomSelect {
 
     constructor(target) {
@@ -29,18 +46,20 @@ class CustomSelect {
         const name = target.name
         const disabled = target.ariaDisabled && target.ariaDisabled.toLowerCase() === 'true'
         const readonly = target.ariaReadOnly && target.ariaReadOnly.toLowerCase() === 'true'
-        const placeholder = target.ariaPlaceholder || "Sélectionner une option"
+        const multiselect = target.ariaMultiSelectable && target.ariaMultiSelectable.toLowerCase() === 'true'
+        const placeholder = target.ariaPlaceholder || "Sélectionner..."
         const label_text = target.ariaLabel || ''
         const html_template = `<div>
             <div class="select-box">
                 <input type="text" class="selected-value" hidden/>
-                <div class="input-group selected-option">
-                    <button class="input-group-text ${label_text ? 'floating' : ''} clear" type="button"><i class="fa fa-close"></i></button>
-                    ${label_text ? '<div class="form-floating">' : ''}
-                        <input type="text" class="form-control" readonly/>
-                    ${label_text ? '<label></label></div>' : ''}
-                    
-                    <button class="input-group-text dropdown" type="button"><i class="fa fa-chevron-down"></i></button>
+                <div class="selected-option">
+                    ${label_text ? '<label class="label-floating"></label>' : ''}
+                    <div class="d-flex align-middle pt-1">
+                        <button class="input-group-text clear" type="button"><i class="fa fa-close"></i></button>
+                        <span class="display-span d-flex flex-fill flex-wrap"></span>
+                        ${multiselect ? '<div class="span-group d-flex flex-fill flex-wrap"></div>' : ''}
+                        <button class="input-group-text dropdown" type="button"><i class="fa fa-chevron-down"></i></button>
+                    </div>
                 </div>
                 <div class="options-list">
                     <div class="input-group search-box">
@@ -62,31 +81,27 @@ class CustomSelect {
         
         this.cselect.id = id
         this.cselect.classList = target.classList
+        this.cselect.classList.add('empty')
 
         let input = this.find('.selected-value')
         input.name = name
 
-        input = this.find('.selected-option input')
-        input.placeholder = placeholder
+        let display_span = this.find('.display-span')
+        display_span.textContent = placeholder
+        display_span.dataset.placeholder = placeholder
         
         if (label_text) {
-            input.name = name+'_display'
-            let label = this.find('.selected-option label')
+            let label = this.find('.select-box label')
             label.textContent = label_text
-            label.htmlFor = input.name
         }
+        this.find('button.clear').hidden = true
 
-        this.find('.selected-option input').addEventListener('click', () => this.toggle())
+        this.find('.display-span').addEventListener('click', () => this.toggle())
+        if (multiselect) {
+            this.find('.span-group').addEventListener('click', () => this.toggle())
+        }
         this.find('button.dropdown').addEventListener('click', () => this.toggle())
-        this.find('button.clear').addEventListener('click', (e) => {
-            e.preventDefault()
-            this.select(null)
-        }, false)
-        this.find('.selected-option input').addEventListener('keydown', (e) => {
-            if (e.key == 'Enter') {
-                this.open()
-            }
-        })
+        this.find('button.clear').addEventListener('click', (e) => this.select(null))
         this.find('.search-box input').addEventListener('input', (e) => { this.filterOptions(e.target.value)});
         this.find('.search-box button').addEventListener('click', () => this.resetFilter())
         // close when clicking outside
@@ -94,6 +109,7 @@ class CustomSelect {
 
         this.setReadonly(readonly)
         this.setDisabled(disabled)
+        this.multiselect = multiselect
     }
 
     options() {
@@ -134,7 +150,7 @@ class CustomSelect {
     }
 
     toggle(forceClose=false) {
-        if (this.isOpen() || forceClose) {
+        if (forceClose || this.isOpen()) {
             this.close()
         } else {
             this.open()
@@ -167,50 +183,146 @@ class CustomSelect {
             option.textContent = text;
             option.addEventListener('click', (evt) => {
                 value = evt.target.dataset.value
-                this.select(value)
+                if (this.multiselect) {
+                    this.add_tag(value)
+                } else {
+                    this.select(value)
+                }
             })
             options.appendChild(option);
         })
     }
 
     reset() {
+        let display_span = this.find('.display-span')
         this.find('.selected-value').value = ''
-        this.find('.selected-option input').value = this.isReadonly() ? " " : this.find('.selected-option input').getAttribute('placeholder')
+        if (this.multiselect) {
+            this.find('.span-group').replaceChildren()
+            display_span.classList.remove('d-none')
+        }
+        display_span.textContent = this.isReadonly() ? "" : display_span.dataset.placeholder
     }
 
-    select(selectedValue) {
-        const oldValue = this.value()
+    handle_empty() {
+        // Display or hide the clear button
+        this.find('button.clear').hidden = this.is_empty()
+        let span = this.find('.display-span')
+        if (this.multiselect) {
+            span.classList.toggle('d-none', !this.is_empty())
+        }
+        this.cselect.classList.toggle('empty', this.is_empty())
+    }
+
+    is_empty() {
+        let values = this.value()
+        if (this.multiselect) {
+            return !values.length
+        }
+        return !values
+    }
+
+    add_tag(tag_value, trigger_change=true) {
+        if (!this.multiselect) {
+            return
+        }
+        let selected_values = this.value()
+        for (const option of this.options()) {
+            if (option.classList.contains('active')) {
+                continue
+            }
+            let value = option.dataset.value
+            let text = option.textContent
+            if (value === tag_value) {
+                option.classList.add('active')
+                selected_values.push(value)
+                this.find('.selected-value').value = selected_values.join(', ')
+
+                let span = document.createElement('span')
+                span.classList.add('tag')
+                span.textContent = text
+                span.title = text
+                span.dataset.value = value
+                this.find('.span-group').appendChild(span)
+
+                let remove_tag = document.createElement('i')
+                remove_tag.classList = ['fa fa-times remove-tag']
+                remove_tag.addEventListener('click', e => {
+                    let tag = e.target.closest('.tag')
+                    const value = tag.dataset.value
+                    this.remove_tag(value)
+                })
+                span.appendChild(remove_tag)
+            }
+        }
+        this.handle_empty()
+        if (trigger_change) {
+            this.triggerChange()
+        }
+    }
+
+    remove_tag(tag_value) {
+        if (!this.multiselect) {
+            return
+        }
+        let selected_values = this.value()
+        for (const option of this.options()) {
+            if (!option.classList.contains('active')) {
+                continue
+            }
+            let value = option.dataset.value
+            if (value === tag_value) {
+                option.classList.remove('active')
+                selected_values = selected_values.filter(v => v !== value)
+                this.find('.selected-value').value = selected_values.join(', ')
+
+                let tags = this.find('.span-group').children
+                for (const tag of tags) {
+                    if (tag.dataset.value === value) {
+                        tag.remove()
+                    }
+                }
+            }
+        }
+        this.handle_empty()
+        this.triggerChange()
+    }
+
+    select(selectedValues) {
+        let oldValues = this.value()
+        selectedValues = split_trim(selectedValues)
         this.reset()
         for (const option of this.options()) {
             let value = option.dataset.value
             let text = option.textContent
-            if (value == selectedValue) {
-                option.classList.add('active')
-                this.find('.selected-option input').value = text
-                this.find('.selected-option input').title = text
-                this.find('.selected-value').value = value
-                this.close()
+            if (selectedValues.includes(value)) {
+                if (this.multiselect) {
+                    this.add_tag(value, false)
+                } else {
+                    this.find('.selected-value').value = value
+                    this.find('.display-span').textContent = text
+                    option.classList.add('active')
+                }
             } else {
                 option.classList.remove('active')
             }
         }
-        if (this.value() !== oldValue) {
+        this.close()
+        let newValues = this.value()
+        if (!equal(newValues, oldValues)) {
             // Manually trigger change event
             let elt = this.find('.selected-value')
             elt.dispatchEvent(new Event('change', { bubbles: true }))
         }
-        // Display or hide the clear button
-        const has_value = Boolean(this.value())
-        this.find('button.clear').hidden = !has_value
-        this.cselect.classList.toggle('empty', !has_value)
+        
+        this.handle_empty()
     }
 
     value() {
-        return this.find('.selected-value').value
-    }
-
-    text() {
-        return this.find('.selected-option input').value
+        let value = this.find('.selected-value').value
+        if (this.multiselect) {
+            value = split_trim(value)
+        }
+        return value
     }
 
     resetFilter() {
@@ -255,14 +367,15 @@ class CustomSelect {
         if (readonly) {
             this.close()
         }
-        if (!this.value()) {
-            this.find('.selected-option input').value = readonly ? " " : this.find('.selected-option input').getAttribute('placeholder')
+        if (this.is_empty()) {
+            let display_span = this.find('.display-span')
+            display_span.textContent = readonly ? "" : display_span.dataset.placeholder
         }
     }
 
     setDisabled(disabled) {
         this.cselect.ariaDisabled = disabled
-        this.find('.selected-option input').disabled = disabled
+        // this.find('.selected-option input').disabled = disabled
         this.find('.selected-option button').disabled = disabled
         if (disabled) {
             this.close()
@@ -271,6 +384,11 @@ class CustomSelect {
 
     addChangeListener(funct) {
         this.find('.selected-value').addEventListener('change', funct, false)
+    }
+
+    triggerChange() {
+        const elt = this.find('.selected-value')
+        elt.dispatchEvent(new Event('change', {bubbles: true}))
     }
 
 }
