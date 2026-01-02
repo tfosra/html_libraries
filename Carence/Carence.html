@@ -8,7 +8,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="../libraries/CustomSelect/CustomSelect.css"/>
+    <link rel="stylesheet" href="../CustomSelect/CustomSelect.css"/>
   <title>Create/Update Carence</title>
 </head>
 
@@ -110,6 +110,9 @@
                 </div>
               </div>
               <div class="row gx-1 mb-2">
+                <select id="carence_ressource" name="carence_ressource" class="custom-select" aria-label="Personnes ressource" aria-multiselectable="true"></select>
+              </div>
+              <div class="row gx-1 mb-2">
                 <div class="form-floating col">
                   <input type="date" class="form-control" id="carence_date" name="carence_date" placeholder="">
                   <label for="carence_date">Date Carence</label>
@@ -130,13 +133,13 @@
                 <table id="action-table" class="table table-sm table-hover">
                   <thead>
                     <tr>
-                      <th scope="col">#</th>
+                      <th scope="col-sm-1">#</th>
                       <th scope="col">Description</th>
-                      <th scope="col">Responsable</th>
-                      <th scope="col">Échéance</th>
+                      <th scope="col-sm-3">Responsable</th>
+                      <th scope="col-sm-2">Échéance</th>
                       <!-- <th scope="col">S/Processus</th> -->
-                      <th scope="col">Statut</th>
-                      <th scope="col"></th>
+                      <th scope="col-sm-1">Statut</th>
+                      <th scope="col-sm-1"></th>
                     </tr>
                   </thead>
                   <tbody class="table-group-divider"></tbody>
@@ -158,7 +161,7 @@
     </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script src="../libraries/CustomSelect/CustomSelect.js"></script>
+  <script src="../CustomSelect/CustomSelect.js"></script>
   <script src="Carence.js"></script>
   <script src="Data.js"></script>
   

@@ -149,7 +149,8 @@ function getData(key) {
         'lieu': dummyLieu,
         'nature': dummyNature,
         'statut': dummyStatut,
-        'type_evaluation': dummyTypeEvaluation
+        'type_evaluation': dummyTypeEvaluation,
+        'resource': dummyResponsables
     }
     if (key in functMap) {
         return functMap[key]()

@@ -7,7 +7,8 @@ const carence_fields = {
     'carence_delai_fermeture': {'key': 'echeance'},
     'carence_date': {'key': 'date'},
     'carence_statut': {'key': 'statut', 'dropdown': true},
-    'activity_code': {'key': 'activity_code', 'required': true}
+    'activity_code': {'key': 'activity_code', 'required': true},
+    'carence_ressource': {'key': 'resource', 'dropdown': true}
 }
 
 const activity_fields = {
@@ -100,10 +101,10 @@ function addActionRow(data, mode='edit') {
               <span class="form-control-text" style="font-size : 0.875rem;" hidden></span>
               <textarea class="form-control form-control-sm" name="action_description" required></textarea>
             </td>
-            <td>
+            <td class='col-sm-2'>
               <select class="custom-select custom-select-sm" name="action_responsable"></select>
             </td>
-            <td>
+            <td class='col-sm-1'>
               <span class="form-control-text" style="font-size : 0.875rem;" hidden></span>
               <input type="date" class="form-control form-control-sm" name="action_echeance">
             </td>

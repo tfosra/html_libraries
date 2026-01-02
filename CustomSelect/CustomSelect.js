@@ -7,7 +7,7 @@ function equal(a, b) {
         return false
     }
     if (Array.isArray(a)) {
-        return a.all(elt => b.includes(a))
+        return a.every(elt => b.includes(a))
     }
     return a === b
 }
